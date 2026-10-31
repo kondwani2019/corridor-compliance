@@ -1,0 +1,98 @@
+chirundu.yaml
+yaml
+border: Chirundu
+country_pair: Zimbabwe <-> Zambia
+route_position: Second major crossing on North-South Corridor
+
+required_documents:
+  - name: Commercial Invoice
+    format: Must match packing list
+    required: true
+    source: ZIMRA / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Invoice value mismatch with Zambia import declaration
+
+  - name: Packing List
+    format: Itemised
+    required: true
+    source: ZIMRA / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing or incomplete
+
+  - name: Transit Bond
+    format: Secured before arrival
+    required: true
+    source: ZIMRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Expired transit bond
+      - Bond does not cover full cargo value
+
+  - name: Zambia Entry/Exit Declaration
+    format: ZRA submission
+    required: true
+    source: ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not submitted before arrival
+
+  - name: Carbon Tax (Zambia)
+    format: Payable in USD at border
+    required: true
+    source: ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not budgeted for
+      - Rates change periodically
+
+  - name: Third-Party Insurance (Zambia)
+    format: USD 30-50 if no COMESA Yellow Card
+    required: true
+    source: ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - No COMESA Yellow Card and no border insurance
+
+  - name: Road Transit Levy
+    format: Payable to RDA Zambia
+    required: true
+    source: RDA Zambia
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Rates change periodically
+
+  - name: Temporary Import Permit (TIP)
+    format: For SA/Zimbabwe-registered trucks
+    required: true
+    source: ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not applied for before arrival
+
+  - name: C-BRTA Cross-Border Permit
+    format: Original
+    required: true
+    source: C-BRTA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Expired or scanned copy
+
+key_risk_points:
+  - "Documentation mismatch between ZIMRA export entry and ZRA import declaration pauses the entire process"
+  - "Chirundu is the busiest heavy-goods border in SADC (~1,000+ trucks/day)"
+  - "Pre-lodge ZIMRA declarations before leaving South Africa via ASYCUDA World"
+  - "Use a clearing agent who operates on both the Zambian and Zimbabwean sides"
+
+source_summary: "Kweli Corridor Network / ZIMRA / ZRA"
+last_updated: 2026-10-21

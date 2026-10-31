@@ -1,0 +1,126 @@
+kazungula.yaml
+yaml
+border: Kazungula
+country_pair: Botswana <-> Zambia
+route_position: Alternative crossing when Kasumbalesa fails
+
+required_documents:
+  - name: Commercial Invoice
+    format: Must match packing list
+    required: true
+    source: BURS / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Invoice value mismatch
+
+  - name: Packing List
+    format: Itemised
+    required: true
+    source: BURS / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing or incomplete
+
+  - name: Bill of Lading / Airway Bill
+    format: Transport document
+    required: true
+    source: BURS / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing
+
+  - name: Customs Entry (ASYCUDA)
+    format: Prepared by clearing agent
+    required: true
+    source: BURS / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not pre-lodged
+
+  - name: Certificate of Origin
+    format: If claiming preferential tariff
+    required: false
+    source: SADC / COMESA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing or invalid
+
+  - name: Transit Documentation
+    format: If moving to third country
+    required: false
+    source: BURS / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing transit documents
+
+  - name: Phytosanitary / Veterinary Certificate
+    format: For applicable commodities
+    required: false
+    source: BURS / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing for applicable goods
+
+  - name: COMESA Yellow Card
+    format: Original, valid in both Botswana and Zambia
+    required: true
+    source: COMESA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not valid in both countries
+      - Expired
+
+  - name: Temporary Import Permit (TIP)
+    format: For foreign-registered vehicles
+    required: true
+    source: BURS / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not applied for
+
+  - name: RTSA Roadworthiness Certificate
+    format: Annual inspection, valid
+    required: true
+    source: RTSA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Expired certificate
+
+  - name: Cross-Border Road Transport Permit
+    format: Zambia (RTSA) and Botswana (MOT)
+    required: true
+    source: RTSA / MOT
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing Botswana or Zambia permit
+
+  - name: Axle Load Certificate
+    format: From certified weighbridge
+    required: true
+    source: Weighbridge
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not obtained
+
+key_risk_points:
+  - "Botswana requires MANDATORY pre-lodgement through BURS before departure"
+  - "Vehicles may only proceed to border once declaration shows PROCEED TO BORDER"
+  - "Arriving without approval is an offence — fine P10,000 (~R12,094)"
+  - "Kazungula Bridge operates 24/7 since February 2026 — bypasses Zimbabwe entirely"
+  - "Wait times typically 1-3 hours — first-choice alternative when Kasumbalesa fails"
+  - "COMESA Yellow Card critical — both Botswana and Zambia are COMESA members"
+
+source_summary: "Kweli Corridor Network / BURS / ZRA / RTSA"
+last_updated: 2026-10-21

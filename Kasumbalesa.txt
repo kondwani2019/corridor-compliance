@@ -1,0 +1,118 @@
+kasumbalesa.yaml
+yaml
+border: Kasumbalesa
+country_pair: Zambia <-> DRC
+route_position: Final major crossing to Copperbelt / DRC
+
+required_documents:
+  - name: Commercial Invoice (USD)
+    format: Values must be declared in USD
+    required: true
+    source: DGDA / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Invoice value not in USD
+      - Invoice value mismatch with packing list
+
+  - name: Packing List
+    format: Itemised
+    required: true
+    source: DGDA / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing or incomplete
+
+  - name: Bill of Lading / Waybill (LTA)
+    format: Contract between shipper and carrier
+    required: true
+    source: DGDA / ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing transport document
+
+  - name: DRC Import/Export Declaration (DGDA)
+    format: IM4 declaration via ASYCUDA World
+    required: true
+    source: DGDA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not submitted through ASYCUDA
+
+  - name: ZRA Zambia Declaration
+    format: ZRA export/import declaration
+    required: true
+    source: ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not pre-lodged
+
+  - name: Certificate of Origin (COMESA Form)
+    format: For preferential tariff rates
+    required: false
+    source: COMESA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing or invalid form
+
+  - name: COMESA Transit Documents (CD3)
+    format: For goods transiting Zambia
+    required: true
+    source: COMESA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing CD3
+
+  - name: OCC Certificate (DRC)
+    format: Must be arranged in advance through approved DRC clearing agent
+    required: true
+    source: OCC (DRC Office de Coordination et de Contrôle)
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing OCC certificate — cannot be obtained at border
+      - OCC certificate expired
+
+  - name: Phytosanitary Certificate
+    format: For agricultural goods
+    required: false
+    source: DGDA / Ministry of Agriculture
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing for applicable commodities
+
+  - name: Carbon Tax (Zambia)
+    format: Payable before border
+    required: true
+    source: ZRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not budgeted for
+
+  - name: USD Cash for Border Fees
+    format: Cash (USD)
+    required: true
+    source: DGDA / OCC operational reports
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - No USD cash on hand; paying in local currency is heavily penalized or rejected
+
+key_risk_points:
+  - "OCC certificate is the #1 failure point — must be arranged in advance through approved DRC agent"
+  - "Duties must be pre-paid into DRC Customs (DGDA) account before truck arrival"
+  - "Vehicles without pre-cleared registration are held, incurring $350+/day detention"
+  - "Kasumbalesa is documentation-intensive — average clearance 3-6 working days"
+  - "Scanner backlog can create 30km truck queues with 100+ hour waits"
+  - "Carry sufficient USD cash for OCC and DGDA fees"
+
+source_summary: "Kweli Corridor Network / Zambia Transport & Logistics News / DGDA / ZRA"
+last_updated: 2026-10-21

@@ -1,0 +1,85 @@
+beitbridge.yaml
+yaml
+border: Beitbridge
+country_pair: South Africa <-> Zimbabwe
+route_position: First major crossing northbound from Durban
+
+required_documents:
+  - name: Commercial Invoice
+    format: Must match packing list line-for-line
+    required: true
+    source: SARS / ZIMRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Invoice value mismatch with packing list
+      - Incorrect commodity description
+
+  - name: Packing List
+    format: Itemised per package, gross/net weights
+    required: true
+    source: SARS / ZIMRA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Missing packing list
+      - Weights do not match weighbridge
+
+  - name: SAD500 (Pre-lodged via SARS eFiling)
+    format: Electronic pre-lodgement before arrival
+    required: true
+    source: SARS
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not pre-lodged
+      - Mismatched load description triggers inspection
+
+  - name: Certificate of Origin (SADC Form CO)
+    format: Original required, photocopies not accepted
+    required: false
+    source: SADC / SARS
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Photocopy presented instead of original
+      - Goods do not meet SADC rules of origin
+
+  - name: C-BRTA Cross-Border Permit
+    format: Original, not scanned
+    required: true
+    source: C-BRTA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Expired permit
+      - Scanned copy presented
+
+  - name: COMESA Yellow Card
+    format: Original physical certificate
+    required: true
+    source: COMESA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Card fails verification via *284*8070#
+      - Zimbabwe not listed on certificate
+
+  - name: ZINARA Road User Charge Receipt
+    format: Paid at border on entry
+    required: true
+    source: ZINARA
+    last_verified: 2026-10-21
+    confidence: medium
+    common_gaps:
+      - Not budgeted for
+      - Fee structure changes periodically
+
+key_risk_points:
+  - "Pre-lodge SAD500 via SARS eFiling at least 48 hours before departure"
+  - "Mismatched load description can trigger full inspection (6-12 hours added)"
+  - "COMESA Yellow Card must pass USSD verification"
+  - "ZINARA fees change periodically — confirm before departure"
+
+source_summary: "Kweli Corridor Network / Zimborders / SARS / ZIMRA"
+last_updated: 2026-10-21

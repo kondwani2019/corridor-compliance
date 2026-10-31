@@ -1,0 +1,743 @@
+DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resilience Edge | Corridor Compliance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #1e293b;
+      --line: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --primary: #38bdf8;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: "Inter", sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .header { padding: 20px 40px; border-bottom: 1px solid var(--line); background: rgba(15,23,42,0.95); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; backdrop-filter: blur(10px); }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .brand-mark { width: 128px; height: 137px; object-fit: contain; flex: 0 0 auto; }
+    .brand-copy { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .brand-name { color: var(--primary); font-size: 1.15rem; font-weight: 800; }
+    .brand-tagline { color: var(--text); font-size: 0.85rem; font-weight: 400; }
+    .status-badge { background: rgba(16,185,129,0.1); color: var(--green); padding: 6px 12px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; border: 1px solid rgba(16,185,129,0.2); white-space: nowrap; }
+    .status-badge.offline { background: rgba(239,68,68,0.1); color: var(--red); border-color: rgba(239,68,68,0.2); }
+    .container { max-width: 1400px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 30px; align-items: start; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); min-width: 0; }
+    .card-header { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; margin: 15px 0 8px; }
+    input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid var(--line); border-radius: 8px; color: white; font-family: inherit; font-size: 0.95rem; transition: border-color 0.2s; }
+    input:focus, select:focus { outline: none; border-color: var(--primary); }
+    .invoice-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 15px; }
+    .invoice-details { margin-top: 20px; border: 1px solid var(--line); border-radius: 8px; background: rgba(15,23,42,0.35); }
+    .invoice-details > summary { cursor: pointer; list-style: none; padding: 14px 16px; color: var(--text); font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 14px; }
+    .invoice-details > summary::-webkit-details-marker { display: none; }
+    .invoice-details > summary::after { content: "▾"; color: var(--primary); font-size: 1.15rem; }
+    .invoice-details[open] > summary::after { content: "▴"; }
+    .invoice-body { border-top: 1px solid var(--line); padding: 12px 16px 16px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
+    .invoice-subsection { border: 1px solid rgba(51,65,85,.9); border-radius: 8px; background: rgba(15,23,42,.35); min-width: 0; }
+    .invoice-subsection[open] { grid-column: 1 / -1; }
+    .invoice-subsection > summary { cursor: pointer; list-style: none; min-height: 48px; padding: 12px; color: var(--text); font-size: 0.88rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .invoice-subsection > summary::-webkit-details-marker { display: none; }
+    .invoice-subsection > summary::after { content: "▾"; color: var(--primary); font-size: 1.05rem; }
+    .invoice-subsection[open] > summary::after { content: "▴"; }
+    .invoice-subsection[open] > *:not(summary) { margin-left: 12px; margin-right: 12px; }
+    .invoice-subsection[open] > *:last-child { margin-bottom: 12px; }
+    .invoice-help { color: var(--muted); font-size: 0.76rem; line-height: 1.45; margin-top: 0; margin-bottom: 12px; }
+    .invoice-section-title { color: var(--primary); font-size: 0.88rem; font-weight: 600; margin: 20px 0 4px; }
+    .invoice-section-note { color: var(--muted); font-size: 0.73rem; margin: 0 0 8px; }
+    .invoice-grid input, .invoice-grid select { min-width: 0; }
+    .invoice-grid .full-width { grid-column: 1 / -1; }
+    .line-item { padding: 12px; border: 1px solid var(--line); border-radius: 8px; margin-top: 10px; }
+    .line-item-top { display: grid; grid-template-columns: minmax(0,2fr) repeat(2,minmax(0,1fr)) 36px; gap: 8px; align-items: end; }
+    .line-item-bottom { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; align-items: end; margin-top: 8px; }
+    .line-item > div { min-width: 0; }
+    .line-item label { margin-top: 0; font-size: 0.67rem; }
+    .line-item input, .line-item select { min-width: 0; max-width: 100%; padding: 9px; font-size: 0.8rem; }
+    .line-total { color: var(--text); font-size: 0.8rem; padding: 11px 2px; white-space: nowrap; }
+    .line-item-total { min-width: 0; }
+    .line-item-total-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .remove-line, .add-line { border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 6px; cursor: pointer; }
+    .remove-line { width: 34px; height: 38px; color: var(--red); font-size: 1rem; }
+    .add-line { padding: 8px 12px; margin-top: 10px; }
+    .invoice-total-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 15px; margin-top: 16px; }
+    .invoice-total { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; padding-top: 12px; border-top: 1px solid var(--line); color: var(--green); font-size: 1.1rem; font-weight: 700; }
+    .invoice-total input { max-width: 220px; text-align: right; font-weight: 700; color: var(--green); }
+    .doc-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin-top: 10px; }
+    .doc-item { display: flex; align-items: flex-start; gap: 8px; color: var(--muted); font-size: 0.85rem; text-transform: none; margin: 0; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(15,23,42,0.45); }
+    .doc-item input { flex: 0 0 auto; width: auto; margin: 2px 0 0; accent-color: var(--green); }
+    .doc-copy { min-width: 0; }
+    .doc-name { display: block; color: var(--text); }
+    .doc-meta { display: block; color: var(--muted); font-size: 0.72rem; margin-top: 4px; line-height: 1.4; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: filter 0.2s, transform 0.2s; margin-top: 25px; font-family: inherit; }
+    .btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+    .btn:disabled { cursor: wait; opacity: 0.65; transform: none; }
+    .btn-primary { background: var(--primary); color: #000; }
+    .btn-success { background: var(--green); color: #000; }
+    .result-box { display: none; margin-top: 0; padding: 20px; border-radius: 8px; background: rgba(15,23,42,0.5); border: 1px solid var(--line); }
+    .result-box.visible { display: block; }
+    .result-header { font-weight: 600; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .result-error { color: var(--red); }
+    .result-success { color: var(--green); }
+    .gap-list { margin: 0; padding-left: 20px; color: var(--muted); font-size: 0.9rem; }
+    .gap-list li { margin-bottom: 8px; }
+    .gap-detail { color: var(--muted); font-size: 0.78rem; display: block; margin-top: 3px; }
+    .risk-list { margin: 16px 0 0; padding: 12px 12px 12px 30px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.8rem; }
+    .risk-list li { margin: 6px 0; }
+    .certificate { display: none; margin-top: 20px; background: #000; border: 1px dashed var(--primary); border-radius: 8px; padding: 20px; }
+    .certificate.visible { display: block; }
+    .cert-title { text-align: center; margin-bottom: 20px; color: var(--green); }
+    .hash-text { font-family: monospace; color: var(--primary); word-break: break-all; font-size: 0.85rem; background: rgba(56,189,248,0.1); padding: 10px; border-radius: 4px; margin: 10px 0; }
+    .cert-row { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 0.85rem; }
+    .cert-label { color: var(--muted); }
+    .cert-value { color: var(--text); font-weight: 600; text-align: right; overflow-wrap: anywhere; }
+    .integrity-note { margin-top: 15px; font-size: 0.75rem; color: var(--amber); line-height: 1.5; border-top: 1px solid var(--line); padding-top: 15px; }
+    .certificate-snapshot { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; }
+    .certificate-snapshot summary { cursor: pointer; color: var(--primary); font-size: 0.82rem; }
+    .certificate-snapshot pre { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--muted); font-size: 0.72rem; line-height: 1.45; }
+    .footer { text-align: center; padding: 40px; color: var(--muted); font-size: 0.8rem; border-top: 1px solid var(--line); margin-top: 40px; }
+    .empty-state, .error-message { color: var(--muted); font-size: 0.88rem; line-height: 1.5; }
+    .error-message { color: var(--red); }
+    .required-note { color: var(--muted); font-size: 0.75rem; margin: 8px 0 0; }
+    .audit-ledger { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+    .audit-ledger-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 25px; }
+    .ledger-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; margin-bottom: 16px; }
+    .ledger-heading h2 { font-size: 1.05rem; margin: 0 0 6px; }
+    .ledger-heading p, .ledger-count { color: var(--muted); font-size: 0.8rem; margin: 0; }
+    .ledger-refresh { flex: 0 0 auto; border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 6px; padding: 8px 12px; cursor: pointer; font: inherit; }
+    .ledger-refresh:hover { border-color: var(--primary); color: var(--primary); }
+    .ledger-refresh:disabled { opacity: 0.6; cursor: wait; }
+    .audit-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+    .audit-table { border-collapse: collapse; min-width: 1500px; width: 100%; font-size: 0.78rem; }
+    .audit-table th, .audit-table td { border-bottom: 1px solid var(--line); padding: 11px 12px; text-align: left; vertical-align: top; }
+    .audit-table th { background: rgba(15,23,42,0.75); color: var(--muted); font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
+    .audit-table td { color: var(--text); }
+    .audit-table tr:last-child td { border-bottom: 0; }
+    .audit-hash, .audit-key { font-family: monospace; overflow-wrap: anywhere; min-width: 190px; }
+    .audit-empty { color: var(--muted) !important; text-align: center !important; padding: 24px !important; }
+    .audit-ledger { margin-bottom: 36px; }
+    @media (max-width: 760px) {
+      .header { padding: 16px 20px; align-items: flex-start; gap: 14px; flex-direction: column; }
+      .brand { gap: 10px; }
+      .brand-mark { width: 100px; height: 107px; }
+      .brand-name { font-size: 1rem; }
+      .brand-tagline { font-size: 0.78rem; }
+      .container { grid-template-columns: 1fr; margin-top: 24px; gap: 18px; }
+      .card { padding: 20px; }
+      .audit-ledger-card { padding: 18px; }
+      .line-item-top { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .line-item .item-description { grid-column: 1 / -1; }
+      .line-item-bottom { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .invoice-body { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .invoice-grid { grid-template-columns: 1fr; }
+      .invoice-grid .full-width { grid-column: auto; }
+    }
+    @media (max-width: 480px) {
+      .doc-grid, .invoice-grid { grid-template-columns: 1fr; }
+      .invoice-body { grid-template-columns: 1fr; padding: 10px; }
+      .cert-row { flex-direction: column; gap: 3px; }
+      .cert-value { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <img class="brand-mark" src="/logo.svg" alt="Resilience Edge Advisory shield with strategy and advisory, agribusiness development, risk and resilience, and leadership capabilities" width="128" height="137">
+      <div class="brand-copy">
+        <div class="brand-name">RESILIENCE EDGE</div>
+        <div class="brand-tagline">Pre-Dispatch Compliance and Audit Trail</div>
+      </div>
+    </div>
+    <div class="status-badge" id="apiStatus" role="status">● Connecting to API</div>
+  </header>
+
+  <main class="container">
+    <section class="card" aria-labelledby="verification-heading">
+      <div class="card-header" id="verification-heading">1. Document Verification</div>
+
+      <label for="borderSelect">Select Border Crossing</label>
+      <select id="borderSelect" disabled></select>
+
+      <details class="invoice-details" open>
+        <summary>Invoice Details <span class="required-note">Commercial invoice fields · USD</span></summary>
+        <div class="invoice-body">
+          <details class="invoice-subsection">
+            <summary>Invoice References &amp; Dates</summary>
+            <p class="invoice-help">Invoice number, purchase order, order date, invoice date, due date, and payment terms link the goods to the commercial transaction and establish its audit chronology.</p>
+            <div class="invoice-grid">
+              <div><label for="invoiceNumber">Invoice number *</label><input id="invoiceNumber" maxlength="80" value="INV-2026-001" required></div>
+              <div><label for="purchaseOrderNumber">Purchase order number</label><input id="purchaseOrderNumber" maxlength="80" placeholder="PO reference"></div>
+              <div><label for="dateOrdered">Date ordered *</label><input type="date" id="dateOrdered" required></div>
+              <div><label for="invoiceDate">Invoice date *</label><input type="date" id="invoiceDate" required></div>
+              <div><label for="dueDate">Payment due date</label><input type="date" id="dueDate"></div>
+              <div><label for="paymentTerms">Payment terms *</label><select id="paymentTerms" required><option value="">Select terms</option><option>Due on receipt</option><option>Net 15</option><option>Net 30</option><option>Net 60</option><option>Letter of credit</option><option>Other - see invoice</option></select></div>
+            </div>
+          </details>
+
+          <details class="invoice-subsection">
+            <summary>Seller / Exporter</summary>
+            <p class="invoice-help">Identifies the party issuing the invoice. The legal name, address, and registration details help customs and auditors match the invoice to the exporter.</p>
+            <div class="invoice-grid">
+              <div><label for="supplierName">Legal supplier name *</label><input type="text" id="supplierName" maxlength="255" value="Global Tech Parts Ltd" required></div>
+              <div><label for="supplierTaxId">Tax / registration ID</label><input type="text" id="supplierTaxId" maxlength="80" placeholder="Seller tax ID"></div>
+              <div class="full-width"><label for="supplierAddress">Registered address *</label><input type="text" id="supplierAddress" maxlength="500" placeholder="Street, city, postal code" required></div>
+              <div><label for="supplierCountry">Country *</label><input type="text" id="supplierCountry" maxlength="100" placeholder="Country" required></div>
+              <div><label for="supplierContact">Email / phone</label><input type="text" id="supplierContact" maxlength="255" placeholder="Seller contact details"></div>
+            </div>
+          </details>
+
+          <details class="invoice-subsection">
+            <summary>Buyer / Importer</summary>
+            <p class="invoice-help">Identifies the importer and delivery party. Matching these details to declarations and transport documents helps prevent ownership, consignee, and destination discrepancies.</p>
+            <div class="invoice-grid">
+              <div><label for="buyerName">Legal buyer name *</label><input type="text" id="buyerName" maxlength="255" placeholder="Importer / buyer" required></div>
+              <div><label for="buyerTaxId">Tax / registration ID</label><input type="text" id="buyerTaxId" maxlength="80" placeholder="Buyer tax ID"></div>
+              <div class="full-width"><label for="buyerAddress">Billing address *</label><input type="text" id="buyerAddress" maxlength="500" placeholder="Street, city, postal code" required></div>
+              <div><label for="buyerCountry">Country *</label><input type="text" id="buyerCountry" maxlength="100" placeholder="Country" required></div>
+              <div><label for="buyerContact">Email / phone</label><input type="text" id="buyerContact" maxlength="255" placeholder="Buyer contact details"></div>
+              <div class="full-width"><label for="shipToAddress">Ship-to / delivery address</label><input type="text" id="shipToAddress" maxlength="500" placeholder="Delivery location, if different from billing address"></div>
+            </div>
+          </details>
+
+          <details class="invoice-subsection">
+            <summary>Product Details</summary>
+            <p class="invoice-help">List each product separately with description, HS code, origin, quantity, unit, and unit price. These details support classification, valuation, origin, and line-by-line document reconciliation.</p>
+            <div id="invoiceLineItems"></div>
+            <button class="add-line" id="addInvoiceLine" type="button">＋ Add product line</button>
+            <input type="hidden" id="hsCode">
+          </details>
+
+          <details class="invoice-subsection">
+            <summary>Shipping &amp; Sale Terms</summary>
+            <p class="invoice-help">Incoterms and the named place identify delivery responsibilities and help explain which freight, insurance, and risk costs are included in the declared value.</p>
+            <div class="invoice-grid">
+              <div><label for="incoterms">Incoterms 2020 *</label><select id="incoterms" required><option value="">Select Incoterm</option><option>EXW</option><option>FCA</option><option>CPT</option><option>CIP</option><option>DAP</option><option>DPU</option><option>DDP</option><option>FAS</option><option>FOB</option><option>CFR</option><option>CIF</option></select></div>
+              <div><label for="deliveryPlace">Named delivery place / port *</label><input id="deliveryPlace" maxlength="200" placeholder="Place named in sales terms" required></div>
+              <div><label for="transportReference">Bill of lading / waybill reference</label><input id="transportReference" maxlength="100" placeholder="Transport document number"></div>
+              <div><label for="countryOfExport">Country of export</label><input id="countryOfExport" maxlength="100" placeholder="Country goods are shipped from"></div>
+            </div>
+          </details>
+
+          <details class="invoice-subsection">
+            <summary>Price Build-up (USD)</summary>
+            <p class="invoice-help">Separating freight, insurance, duties, other charges, and discounts makes the declared invoice total traceable to its components.</p>
+            <div class="invoice-total-grid">
+              <div><label for="freightUsd">Freight (USD)</label><input type="number" id="freightUsd" min="0" step="0.01" value="0"></div>
+              <div><label for="insuranceUsd">Insurance (USD)</label><input type="number" id="insuranceUsd" min="0" step="0.01" value="0"></div>
+              <div><label for="taxesUsd">Taxes / duties (USD)</label><input type="number" id="taxesUsd" min="0" step="0.01" value="0"></div>
+              <div><label for="otherChargesUsd">Other charges (USD)</label><input type="number" id="otherChargesUsd" min="0" step="0.01" value="0"></div>
+              <div><label for="discountUsd">Discount (USD)</label><input type="number" id="discountUsd" min="0" step="0.01" value="0"></div>
+              <div class="invoice-total"><label for="invoiceValue">Total invoice value (USD) *</label><input type="number" id="invoiceValue" min="0.01" max="99999999.99" step="0.01" value="0.00" readonly required></div>
+            </div>
+          </details>
+          <p class="required-note">Fields marked * and all applicable customs requirements must be completed. Invoice requirements vary by jurisdiction; confirm with the relevant customs authority or broker.</p>
+        </div>
+      </details>
+
+      <label>Documents Prepared for Dispatch</label>
+      <div class="doc-grid" id="documentChecklist" aria-live="polite">
+        <p class="empty-state">Loading the selected border checklist from YAML…</p>
+      </div>
+      <p class="required-note">Required documents are marked with *. Optional documents do not block dispatch readiness.</p>
+      <button class="btn btn-primary" id="validateButton" type="button" onclick="runValidation()" disabled>Run AI Gap Check</button>
+      <p id="pageError" class="error-message" role="alert" hidden></p>
+    </section>
+
+    <section aria-label="Validation results and audit certificate">
+      <div id="gapReport" class="result-box" aria-live="polite">
+        <div class="result-header" id="gapStatus"></div>
+        <ul class="gap-list" id="gapList"></ul>
+        <ul class="risk-list" id="riskList" hidden></ul>
+      </div>
+
+      <div id="auditCertificate" class="certificate" aria-live="polite">
+        <div class="cert-title">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          <h3 style="margin:10px 0 0">COMPLIANCE AUDIT CERTIFICATE</h3>
+        </div>
+        <div class="cert-row"><span class="cert-label">Audit record:</span><span class="cert-value" id="certId"></span></div>
+        <div class="cert-row"><span class="cert-label">Document hash (SHA-256):</span></div>
+        <div class="hash-text" id="certHash"></div>
+        <div class="cert-row"><span class="cert-label">Timestamp (UTC):</span><span class="cert-value" id="certTime"></span></div>
+        <div class="cert-row"><span class="cert-label">Border:</span><span class="cert-value" id="certBorder"></span></div>
+        <div class="cert-row"><span class="cert-label">HS Code:</span><span class="cert-value" id="certHs"></span></div>
+        <div class="cert-row"><span class="cert-label">Declared value:</span><span class="cert-value" id="certVal"></span></div>
+        <div class="cert-row"><span class="cert-label">Supplier:</span><span class="cert-value" id="certSupplier"></span></div>
+        <div class="cert-row"><span class="cert-label">Verified against:</span><span class="cert-value" id="certSource"></span></div>
+        <details class="certificate-snapshot"><summary>View hashed invoice snapshot</summary><pre id="certSnapshot"></pre></details>
+        <p class="integrity-note" id="integrityNote"></p>
+        <button class="btn btn-success" id="downloadCertificate" type="button" onclick="downloadAuditCertificate()">Download Certificate (.txt)</button>
+      </div>
+    </section>
+  </main>
+
+  <section class="audit-ledger" aria-labelledby="audit-ledger-title">
+    <div class="audit-ledger-card">
+      <div class="ledger-heading">
+        <div>
+          <h2 id="audit-ledger-title">2. Persisted Audit Trail</h2>
+          <p>Successful certificate hashes are committed to the SQLite <code>audit_records</code> table and queryable by auditors.</p>
+        </div>
+        <button class="ledger-refresh" id="refreshAuditButton" type="button" onclick="refreshAuditTrail()" aria-label="Refresh persisted audit records">Refresh</button>
+      </div>
+      <p class="ledger-count" id="auditRecordCount" role="status">Loading saved audit records…</p>
+      <div class="audit-table-wrap" style="margin-top:12px">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>ID</th><th>Timestamp (UTC)</th><th>Border</th><th>HS Code</th>
+              <th>Invoice value (USD)</th><th>Supplier</th><th>Document hash (SHA-256)</th>
+              <th>Verification source</th><th>Operator API key (fingerprint)</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="auditRecordsBody"><tr><td class="audit-empty" colspan="10">Loading audit_records…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Resilience Edge © 2026 | Corridor Compliance<br>
+    Verify required documents before dispatch; retain the audit record for review.
+  </footer>
+
+  <script>
+    const borderLabels = {
+      beitbridge: 'Beitbridge (South Africa ↔ Zimbabwe)',
+      chirundu: 'Chirundu (Zimbabwe ↔ Zambia)',
+      kasumbalesa: 'Kasumbalesa (Zambia ↔ DRC)',
+      kazungula: 'Kazungula (Botswana ↔ Zambia)'
+    };
+    const borderSelect = document.getElementById('borderSelect');
+    const docContainer = document.getElementById('documentChecklist');
+    const validateButton = document.getElementById('validateButton');
+    const gapReport = document.getElementById('gapReport');
+    const auditCertificate = document.getElementById('auditCertificate');
+    let activeChecklist = null;
+    let lastAuditCertificate = null;
+
+    function addInvoiceLineItem(values) {
+      const row = document.createElement('div');
+      row.className = 'line-item';
+      row.dataset.invoiceLine = 'true';
+      row.innerHTML = '<div class="line-item-top">'
+        + '<div class="item-description"><label>Product description *</label><input data-field="description" maxlength="500" required></div>'
+        + '<div><label>HS code *</label><input data-field="hs_code" maxlength="20" required></div>'
+        + '<div><label>Country of origin *</label><input data-field="country_of_origin" maxlength="100" required></div>'
+        + '<button class="remove-line" type="button" aria-label="Remove product line" title="Remove product line">×</button>'
+        + '</div><div class="line-item-bottom">'
+        + '<div><label>Quantity *</label><input type="number" data-field="quantity" min="0.0001" step="any" required></div>'
+        + '<div><label>Unit *</label><select data-field="unit_of_measure" required><option value="">Unit</option><option>each</option><option>piece</option><option>set</option><option>kg</option><option>tonne</option><option>litre</option><option>carton</option><option>package</option></select></div>'
+        + '<div><label>Unit price (USD) *</label><input type="number" data-field="unit_price_usd" min="0" step="0.01" required></div>'
+        + '<div class="line-item-total"><label>Line total (USD)</label><div class="line-item-total-row"><div class="line-total">$0.00</div></div></div>'
+        + '</div>';
+      Object.entries(values || {}).forEach(function(entry) {
+        const field = row.querySelector('[data-field="' + entry[0] + '"]');
+        if (field) field.value = entry[1];
+      });
+      document.getElementById('invoiceLineItems').appendChild(row);
+      calculateInvoiceTotals();
+    }
+
+    function calculateInvoiceTotals() {
+      const rows = Array.from(document.querySelectorAll('[data-invoice-line]'));
+      let subtotal = 0;
+      rows.forEach(function(row) {
+        const quantity = Number(row.querySelector('[data-field="quantity"]').value) || 0;
+        const unitPrice = Number(row.querySelector('[data-field="unit_price_usd"]').value) || 0;
+        const lineTotal = Math.round(quantity * unitPrice * 100) / 100;
+        subtotal += lineTotal;
+        row.querySelector('.line-total').textContent = '$' + lineTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      });
+      const amount = function(id) { return Number(document.getElementById(id).value) || 0; };
+      const total = Math.round((subtotal + amount('freightUsd') + amount('insuranceUsd')
+        + amount('taxesUsd') + amount('otherChargesUsd') - amount('discountUsd')) * 100) / 100;
+      document.getElementById('invoiceValue').value = total.toFixed(2);
+      document.getElementById('hsCode').value = rows.length
+        ? rows[0].querySelector('[data-field="hs_code"]').value.trim() : '';
+      return { subtotal: Math.round(subtotal * 100) / 100, total: total };
+    }
+
+    function collectInvoiceDetails() {
+      const lineRows = Array.from(document.querySelectorAll('[data-invoice-line]'));
+      const invoiceItems = lineRows.map(function(row) {
+        const get = function(field) { return row.querySelector('[data-field="' + field + '"]').value.trim(); };
+        const quantity = Number(get('quantity'));
+        const unitPrice = Number(get('unit_price_usd'));
+        return {
+          description: get('description'),
+          hs_code: get('hs_code'),
+          country_of_origin: get('country_of_origin'),
+          quantity: quantity,
+          unit_of_measure: get('unit_of_measure'),
+          unit_price_usd: unitPrice,
+          line_total_usd: Math.round(quantity * unitPrice * 100) / 100
+        };
+      });
+      const requiredIds = [
+        'invoiceNumber','dateOrdered','invoiceDate','paymentTerms','supplierName','supplierAddress',
+        'supplierCountry','buyerName','buyerAddress','buyerCountry','incoterms','deliveryPlace'
+      ];
+      const missing = requiredIds.filter(function(id) { return !document.getElementById(id).value.trim(); });
+      if (!invoiceItems.length) missing.push('product line');
+      invoiceItems.forEach(function(item, index) {
+        if (!item.description || !item.hs_code || !item.country_of_origin || !item.unit_of_measure
+            || !Number.isFinite(item.quantity) || item.quantity <= 0
+            || !Number.isFinite(item.unit_price_usd) || item.unit_price_usd < 0) {
+          missing.push('complete product line ' + (index + 1));
+        }
+      });
+      const totals = calculateInvoiceTotals();
+      if (totals.total <= 0 || !Number.isFinite(totals.total)) missing.push('invoice total greater than zero');
+      if (missing.length) {
+        throw new Error('Complete the required invoice details: ' + Array.from(new Set(missing)).join(', ') + '.');
+      }
+
+      const get = function(id) { return document.getElementById(id).value.trim(); };
+      return {
+        invoice_number: get('invoiceNumber'),
+        purchase_order_number: get('purchaseOrderNumber'),
+        date_ordered: get('dateOrdered'),
+        invoice_date: get('invoiceDate'),
+        due_date: get('dueDate') || null,
+        payment_terms: get('paymentTerms'),
+        currency: 'USD',
+        supplier: {
+          name: get('supplierName'), tax_id: get('supplierTaxId'), address: get('supplierAddress'),
+          country: get('supplierCountry'), contact: get('supplierContact')
+        },
+        buyer: {
+          name: get('buyerName'), tax_id: get('buyerTaxId'), address: get('buyerAddress'),
+          country: get('buyerCountry'), contact: get('buyerContact'), ship_to_address: get('shipToAddress')
+        },
+        shipping: {
+          incoterms_2020: get('incoterms'), named_place: get('deliveryPlace'),
+          transport_reference: get('transportReference'), country_of_export: get('countryOfExport')
+        },
+        line_items: invoiceItems,
+        subtotal_usd: totals.subtotal,
+        freight_usd: Number(get('freightUsd')) || 0,
+        insurance_usd: Number(get('insuranceUsd')) || 0,
+        taxes_duties_usd: Number(get('taxesUsd')) || 0,
+        other_charges_usd: Number(get('otherChargesUsd')) || 0,
+        discount_usd: Number(get('discountUsd')) || 0,
+        total_invoice_value_usd: totals.total
+      };
+    }
+
+    document.getElementById('invoiceLineItems').addEventListener('input', calculateInvoiceTotals);
+    document.getElementById('invoiceLineItems').addEventListener('change', calculateInvoiceTotals);
+    document.querySelector('.invoice-total-grid').addEventListener('input', calculateInvoiceTotals);
+    document.getElementById('addInvoiceLine').addEventListener('click', function() { addInvoiceLineItem(); });
+    document.getElementById('invoiceLineItems').addEventListener('click', function(event) {
+      const removeButton = event.target.closest('.remove-line');
+      if (!removeButton) return;
+      const rows = document.querySelectorAll('[data-invoice-line]');
+      if (rows.length <= 1) return;
+      removeButton.closest('[data-invoice-line]').remove();
+      calculateInvoiceTotals();
+    });
+
+    async function apiRequest(path, options) {
+      const response = await fetch(path, Object.assign({
+        headers: { 'Content-Type': 'application/json' }
+      }, options || {}));
+      const data = await response.json();
+      if (!response.ok) {
+        const detail = typeof data.detail === 'string' ? data.detail
+          : data.detail && data.detail.message ? data.detail.message
+          : Array.isArray(data.detail) ? data.detail.map(function(issue) {
+            return (issue.loc || []).join('.') + ': ' + issue.msg;
+          }).join('; ')
+          : 'Request failed (' + response.status + ').';
+        throw new Error(detail);
+      }
+      return data;
+    }
+
+    function showPageError(message) {
+      const error = document.getElementById('pageError');
+      error.textContent = message;
+      error.hidden = !message;
+    }
+
+    function setApiStatus(online) {
+      const badge = document.getElementById('apiStatus');
+      badge.textContent = online ? '● API Connected' : '● API Unavailable';
+      badge.classList.toggle('offline', !online);
+    }
+
+    function clearResults() {
+      gapReport.classList.remove('visible');
+      auditCertificate.classList.remove('visible');
+      document.getElementById('gapList').replaceChildren();
+      document.getElementById('riskList').replaceChildren();
+    }
+
+    async function updateCheckboxes() {
+      clearResults();
+      showPageError('');
+      validateButton.disabled = true;
+      docContainer.replaceChildren();
+      try {
+        activeChecklist = await apiRequest('/api/borders/' + encodeURIComponent(borderSelect.value));
+        activeChecklist.required_documents.forEach(function(documentRule) {
+          const label = document.createElement('label');
+          label.className = 'doc-item';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = documentRule.name;
+          checkbox.dataset.required = String(documentRule.required);
+          const copy = document.createElement('span');
+          copy.className = 'doc-copy';
+          const name = document.createElement('span');
+          name.className = 'doc-name';
+          name.textContent = documentRule.name + (documentRule.required ? ' *' : ' (optional)');
+          const detail = document.createElement('span');
+          detail.className = 'doc-meta';
+          detail.textContent = [documentRule.format, documentRule.source ? 'Source: ' + documentRule.source : '']
+            .filter(Boolean).join(' · ');
+          copy.append(name, detail);
+          label.append(checkbox, copy);
+          docContainer.appendChild(label);
+        });
+        validateButton.disabled = false;
+      } catch (error) {
+        activeChecklist = null;
+        docContainer.innerHTML = '<p class="empty-state">The YAML checklist could not be loaded.</p>';
+        showPageError(error.message + ' Start the backend with: uvicorn main:app --reload');
+      }
+    }
+
+    function renderValidation(result) {
+      const gapStatus = document.getElementById('gapStatus');
+      const gapList = document.getElementById('gapList');
+      gapList.replaceChildren();
+      gapReport.classList.add('visible');
+
+      if (result.gaps.length) {
+        gapStatus.className = 'result-header result-error';
+        gapStatus.textContent = '✕ ' + result.gaps.length + ' required document gap(s) detected';
+        result.gaps.forEach(function(gap) {
+          const item = document.createElement('li');
+          item.append(document.createTextNode('Missing: ' + gap.document + '. ' + gap.consequence));
+          const detail = document.createElement('span');
+          detail.className = 'gap-detail';
+          detail.textContent = [gap.source, gap.confidence ? 'Confidence: ' + gap.confidence : '']
+            .filter(Boolean).join(' · ');
+          item.appendChild(detail);
+          gapList.appendChild(item);
+        });
+        auditCertificate.classList.remove('visible');
+      } else {
+        gapStatus.className = 'result-header result-success';
+        gapStatus.textContent = '✓ Required documents present — generating audit record';
+        const item = document.createElement('li');
+        item.textContent = result.documents_submitted + ' checklist document(s) matched. Checklist last updated: '
+          + String(result.last_verified || 'not specified') + '.';
+        gapList.appendChild(item);
+        auditCertificate.classList.remove('visible');
+      }
+
+      const riskList = document.getElementById('riskList');
+      riskList.replaceChildren();
+      if (result.key_risk_points && result.key_risk_points.length) {
+        result.key_risk_points.forEach(function(risk) {
+          const item = document.createElement('li');
+          item.textContent = risk;
+          riskList.appendChild(item);
+        });
+        riskList.hidden = false;
+      } else {
+        riskList.hidden = true;
+      }
+    }
+
+    async function runValidation() {
+      if (!activeChecklist) {
+        showPageError('No checklist is loaded for this border.');
+        return;
+      }
+      let invoiceDetails;
+      try {
+        invoiceDetails = collectInvoiceDetails();
+      } catch (error) {
+        showPageError(error.message);
+        return;
+      }
+      const hsCode = invoiceDetails.line_items[0].hs_code;
+      const invoiceValue = invoiceDetails.total_invoice_value_usd;
+      const supplierName = invoiceDetails.supplier.name;
+
+      showPageError('');
+      validateButton.disabled = true;
+      validateButton.textContent = 'Checking YAML requirements…';
+      auditCertificate.classList.remove('visible');
+      const submittedDocuments = Array.from(docContainer.querySelectorAll('input:checked'))
+        .map(function(checkbox) { return checkbox.value; });
+
+      try {
+        const validation = await apiRequest('/api/validate', {
+          method: 'POST',
+          body: JSON.stringify({ border_name: borderSelect.value, submitted_documents: submittedDocuments })
+        });
+        renderValidation(validation);
+        if (validation.ready_to_submit) {
+          await generateAuditCertificate({
+            border_name: borderSelect.value,
+            submitted_documents: submittedDocuments,
+            hs_code: hsCode,
+            invoice_value: invoiceValue,
+            supplier_name: supplierName,
+            invoice_details: invoiceDetails
+          });
+        }
+      } catch (error) {
+        showPageError(error.message);
+      } finally {
+        validateButton.disabled = false;
+        validateButton.textContent = 'Run AI Gap Check';
+      }
+    }
+
+    async function generateAuditCertificate(request) {
+      validateButton.textContent = 'Saving audit record…';
+      const response = await apiRequest('/api/hash', { method: 'POST', body: JSON.stringify(request) });
+      const certificate = response.audit_certificate;
+      lastAuditCertificate = certificate;
+      document.getElementById('certId').textContent = String(certificate.id);
+      document.getElementById('certHash').textContent = 'SHA-256: ' + certificate.document_hash;
+      document.getElementById('certTime').textContent = certificate.timestamp;
+      document.getElementById('certBorder').textContent = certificate.border;
+      document.getElementById('certHs').textContent = certificate.hs_code;
+      document.getElementById('certVal').textContent = certificate.invoice_value_usd + ' USD';
+      document.getElementById('certSupplier').textContent = certificate.supplier;
+      document.getElementById('certSource').textContent = certificate.verification_source;
+      document.getElementById('certSnapshot').textContent = JSON.stringify(certificate.invoice_details, null, 2);
+      document.getElementById('integrityNote').textContent = certificate.integrity_message;
+      auditCertificate.classList.add('visible');
+      await refreshAuditTrail();
+    }
+
+    function renderAuditRecords(records, count) {
+      const body = document.getElementById('auditRecordsBody');
+      const countLabel = document.getElementById('auditRecordCount');
+      body.replaceChildren();
+      countLabel.textContent = count + ' audit record(s) in SQLite audit_records. Showing the latest '
+        + records.length + ' (maximum 100). Operator values are one-way fingerprints.';
+      if (!records.length) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 10;
+        cell.className = 'audit-empty';
+        cell.textContent = 'No successful audit records yet.';
+        row.appendChild(cell);
+        body.appendChild(row);
+        return;
+      }
+
+      records.forEach(function(record) {
+        const row = document.createElement('tr');
+        const value = Number(record.invoice_value_usd).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        [
+          String(record.id), record.check_timestamp, record.border_name, record.hs_code,
+          value, record.supplier_name, record.document_hash, record.verification_source,
+          record.operator_key_fingerprint, record.status
+        ].forEach(function(valueText, index) {
+          const cell = document.createElement('td');
+          cell.textContent = valueText == null ? '' : String(valueText);
+          if (index === 6) cell.className = 'audit-hash';
+          if (index === 8) cell.className = 'audit-key';
+          row.appendChild(cell);
+        });
+        body.appendChild(row);
+      });
+    }
+
+    async function refreshAuditTrail() {
+      const button = document.getElementById('refreshAuditButton');
+      button.disabled = true;
+      try {
+        const result = await apiRequest('/api/audit?limit=25');
+        renderAuditRecords(result.records, result.count);
+      } catch (error) {
+        document.getElementById('auditRecordCount').textContent = 'Could not load persisted audit records: ' + error.message;
+        document.getElementById('auditRecordsBody').innerHTML = '<tr><td class="audit-empty" colspan="10">Audit ledger unavailable.</td></tr>';
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    function downloadAuditCertificate() {
+      if (!lastAuditCertificate) return;
+      const certificateText = [
+        'RESILIENCE EDGE COMPLIANCE AUDIT CERTIFICATE',
+        'Audit record: ' + lastAuditCertificate.id,
+        'Timestamp (UTC): ' + lastAuditCertificate.timestamp,
+        'Border: ' + lastAuditCertificate.border,
+        'HS Code: ' + lastAuditCertificate.hs_code,
+        'Invoice value: ' + lastAuditCertificate.invoice_value_usd + ' USD',
+        'Supplier: ' + lastAuditCertificate.supplier,
+        'Invoice details:',
+        JSON.stringify(lastAuditCertificate.invoice_details, null, 2),
+        'Verification source: ' + lastAuditCertificate.verification_source,
+        'SHA-256: ' + lastAuditCertificate.document_hash,
+        '',
+        'YAML rules applied:',
+        JSON.stringify(lastAuditCertificate.yaml_rules_applied, null, 2),
+        '',
+        lastAuditCertificate.integrity_message
+      ].join('\n');
+      const blob = new Blob([certificateText], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'resilience-edge-audit-' + lastAuditCertificate.id + '.txt';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    borderSelect.addEventListener('change', updateCheckboxes);
+    async function initializeDashboard() {
+      try {
+        const health = await apiRequest('/api/health');
+        setApiStatus(health.status === 'ok');
+        const borders = await apiRequest('/api/borders');
+        borderSelect.replaceChildren();
+        borders.forEach(function(border) {
+          const option = document.createElement('option');
+          option.value = border;
+          option.textContent = borderLabels[border] || border;
+          borderSelect.appendChild(option);
+        });
+        borderSelect.disabled = false;
+        if (borders.includes('kasumbalesa')) borderSelect.value = 'kasumbalesa';
+        await updateCheckboxes();
+        await refreshAuditTrail();
+      } catch (error) {
+        setApiStatus(false);
+        showPageError(error.message + ' Open this page from the running FastAPI server.');
+        docContainer.innerHTML = '<p class="empty-state">Connect to the backend to load YAML checklist rules.</p>';
+      }
+    }
+    addInvoiceLineItem({
+      description: 'Motor vehicle spare parts',
+      hs_code: '8708.99.00',
+      country_of_origin: 'South Africa',
+      quantity: '1',
+      unit_of_measure: 'each',
+      unit_price_usd: '15000'
+    });
+    initializeDashboard();
+  </script>
+</body>
+</html>
